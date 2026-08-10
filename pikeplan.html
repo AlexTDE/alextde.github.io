@@ -218,4 +218,221 @@
         <div id="today-tasks"></div>
 
         <h2 style="margin-top: 20px;">Без даты</h2>
-        <div id="dat
+        <div id="dateless-tasks"></div>
+    </div>
+
+    <div id="calendar" class="content">
+        <div class="calendar-header">
+            <button onclick="changeMonth(-1)">❮</button>
+            <span id="calendar-month-year"></span>
+            <button class="btn-today-jump" onclick="goToToday()">Сегодня</button>
+            <button onclick="changeMonth(1)">❯</button>
+        </div>
+        <div class="calendar-grid" id="cal-grid"></div>
+        
+        <h2 style="margin-top: 20px;" id="selected-day-title">Задачи на день</h2>
+        <div id="selected-day-tasks">Выберите день, чтобы увидеть задачи.</div>
+    </div>
+
+    <div id="archive" class="content">
+        <h2>Выполненные задачи</h2>
+        <div id="archive-tasks"></div>
+    </div>
+
+    <button class="fab" onclick="openModal()">+</button>
+
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <h2 style="margin-top: 0; border:none;">Новая задача</h2>
+            <input type="text" id="taskName" placeholder="Что нужно сделать?" required>
+            <input type="date" id="taskDate">
+            <input type="text" id="taskCategory" placeholder="Категория (например, Учеба)">
+            <button class="btn" onclick="saveTask()">Добавить</button>
+            <button class="btn" style="background: var(--color-lavender-200); color: var(--text-main); margin-top: 10px;" onclick="closeModal()">Отмена</button>
+        </div>
+    </div>
+
+    <script>
+        let tasks = JSON.parse(localStorage.getItem('pikeplan_tasks')) || [];
+        
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let selectedDateStr = null;
+
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('today-date-display').innerText = new Date().toLocaleDateString('ru-RU', options);
+
+        function switchTab(e, tabId) {
+            document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            if (e) e.target.classList.add('active');
+            renderApp();
+        }
+
+        function openModal() { document.getElementById('taskModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('taskModal').style.display = 'none'; }
+
+        function saveTask() {
+            const name = document.getElementById('taskName').value;
+            const date = document.getElementById('taskDate').value;
+            const category = document.getElementById('taskCategory').value;
+
+            if (!name) return alert("Введите название задачи!");
+
+            tasks.push({ 
+                id: Date.now(), 
+                name, 
+                date: date || null, 
+                category,
+                completed: false 
+            });
+            
+            localStorage.setItem('pikeplan_tasks', JSON.stringify(tasks));
+            
+            document.getElementById('taskName').value = '';
+            document.getElementById('taskDate').value = '';
+            document.getElementById('taskCategory').value = '';
+            
+            closeModal();
+            renderApp();
+        }
+
+        function toggleComplete(id) {
+            tasks = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
+            localStorage.setItem('pikeplan_tasks', JSON.stringify(tasks));
+            renderApp();
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            localStorage.setItem('pikeplan_tasks', JSON.stringify(tasks));
+            renderApp();
+        }
+
+        function getTodayStr() {
+            const today = new Date();
+            return `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        }
+
+        function renderApp() {
+            const todayStr = getTodayStr();
+            
+            const todayContainer = document.getElementById('today-tasks');
+            const datelessContainer = document.getElementById('dateless-tasks');
+            const archiveContainer = document.getElementById('archive-tasks');
+            
+            const activeTasks = tasks.filter(t => !t.completed);
+            const completedTasks = tasks.filter(t => t.completed);
+
+            const todayTasks = activeTasks.filter(t => t.date === todayStr);
+            const datelessTasks = activeTasks.filter(t => !t.date);
+
+            const renderTaskItem = (t) => `
+                <div class="task">
+                    <div class="task-left">
+                        <input type="checkbox" class="task-checkbox" ${t.completed ? 'checked' : ''} onchange="toggleComplete(${t.id})">
+                        <div class="task-info">
+                            <strong style="${t.completed ? 'text-decoration: line-through; color: var(--color-lavender-500);' : ''}">${t.name}</strong>
+                            <div class="task-category">${t.category || 'Без категории'}</div>
+                        </div>
+                    </div>
+                    <div class="task-delete" onclick="deleteTask(${t.id})">×</div>
+                </div>
+            `;
+
+            todayContainer.innerHTML = todayTasks.length ? todayTasks.map(renderTaskItem).join('') : '<p style="color: var(--color-lavender-700)">На сегодня ничего не запланировано!</p>';
+            datelessContainer.innerHTML = datelessTasks.length ? datelessTasks.map(renderTaskItem).join('') : '<p style="color: var(--color-lavender-700)">Нет задач без даты.</p>';
+            archiveContainer.innerHTML = completedTasks.length ? completedTasks.map(renderTaskItem).join('') : '<p style="color: var(--color-lavender-700)">Архив пуст.</p>';
+
+            renderCalendar();
+            if (selectedDateStr) {
+                showTasksForDay(selectedDateStr);
+            }
+        }
+
+        function changeMonth(direction) {
+            currentMonth += direction;
+            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+            else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+            renderCalendar();
+        }
+
+        function goToToday() {
+            const realToday = new Date();
+            currentMonth = realToday.getMonth();
+            currentYear = realToday.getFullYear();
+            renderCalendar();
+            showTasksForDay(getTodayStr());
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('cal-grid');
+            grid.innerHTML = '';
+            
+            const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+            document.getElementById('calendar-month-year').innerText = `${monthNames[currentMonth]} ${currentYear}`;
+
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const realTodayStr = getTodayStr();
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'calendar-day';
+                dayDiv.innerText = i;
+                
+                const dayStr = `${currentYear}-${String(currentMonth+1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                
+                if (dayStr === realTodayStr) {
+                    dayDiv.classList.add('is-today');
+                }
+
+                if (tasks.some(t => t.date === dayStr && !t.completed)) {
+                    dayDiv.classList.add('has-task');
+                }
+
+                if (selectedDateStr === dayStr) {
+                    dayDiv.classList.add('active-day');
+                }
+
+                dayDiv.onclick = () => {
+                    document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('active-day'));
+                    dayDiv.classList.add('active-day');
+                    showTasksForDay(dayStr);
+                };
+
+                grid.appendChild(dayDiv);
+            }
+        }
+
+        function showTasksForDay(dateStr) {
+            selectedDateStr = dateStr;
+            const container = document.getElementById('selected-day-tasks');
+            const dayTasks = tasks.filter(t => t.date === dateStr && !t.completed);
+            
+            const dateParts = dateStr.split('-');
+            document.getElementById('selected-day-title').innerText = `Задачи на ${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
+
+            if (!dayTasks.length) {
+                container.innerHTML = `<p style="color: var(--color-lavender-700)">На этот день активных задач нет.</p>`;
+                return;
+            }
+
+            container.innerHTML = dayTasks.map(t => `
+                <div class="task">
+                    <div class="task-left">
+                        <input type="checkbox" class="task-checkbox" onchange="toggleComplete(${t.id})">
+                        <div class="task-info">
+                            <strong>${t.name}</strong>
+                            <div class="task-category">${t.category || 'Без категории'}</div>
+                        </div>
+                    </div>
+                    <div class="task-delete" onclick="deleteTask(${t.id})">×</div>
+                </div>
+            `).join('');
+        }
+
+        renderApp();
+    </script>
+</body>
+</html>
