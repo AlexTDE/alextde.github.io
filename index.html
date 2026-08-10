@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Моя Экосистема</title>
+    <style>
+        /* Та самая новая палитра */
+        :root {
+            --color-lavender-50: #f8f7ff;
+            --color-lavender-100: #f0eeff;
+            --color-lavender-200: #e0dbff;
+            --color-lavender-300: #c1b5ff;
+            --color-lavender-400: #a38fff;
+            --color-lavender-500: #8469ff;
+            --color-lavender-600: #6b4eff;
+            --color-lavender-700: #5639e6;
+            --color-lavender-800: #462ebc;
+            --color-lavender-900: #3a279c;
+            --color-pink-soft: #ffebf5;
+            --color-purple-deep: #4a148c;
+
+            /* Привязка к элементам */
+            --bg-color: var(--color-lavender-50);
+            --primary: var(--color-lavender-300);
+            --accent: var(--color-purple-deep);
+            --text-main: #000000;
+            --card-bg: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: var(--text-main);
+            padding: 20px;
+            width: 100%;
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+        }
+
+        .subtitle {
+            margin-top: 5px;
+            font-size: 14px;
+            font-weight: normal;
+            color: var(--color-lavender-800);
+        }
+
+        .container {
+            padding: 30px 20px;
+            width: 100%;
+            max-width: 800px;
+            box-sizing: border-box;
+        }
+
+        /* Сетка для приложений */
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        /* Карточка приложения */
+        .app-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            text-decoration: none;
+            color: var(--text-main);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-top: 5px solid var(--accent);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(74, 20, 140, 0.15); /* Тень в тон глубокого фиолетового */
+        }
+
+        .app-title {
+            font<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Моя Экосистема</title>
+    <style>
+        /* Та самая новая палитра */
+        :root {
+            --color-lavender-50: #f8f7ff;
+            --color-lavender-100: #f0eeff;
+            --color-lavender-200: #e0dbff;
+            --color-lavender-300: #c1b5ff;
+            --color-lavender-400: #a38fff;
+            --color-lavender-500: #8469ff;
+            --color-lavender-600: #6b4eff;
+            --color-lavender-700: #5639e6;
+            --color-lavender-800: #462ebc;
+            --color-lavender-900: #3a279c;
+            --color-pink-soft: #ffebf5;
+            --color-purple-deep: #4a148c;
+
+            /* Привязка к элементам */
+            --bg-color: var(--color-lavender-50);
+            --primary: var(--color-lavender-300);
+            --accent: var(--color-purple-deep);
+            --text-main: #000000;
+            --card-bg: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: var(--text-main);
+            padding: 20px;
+            width: 100%;
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+        }
+
+        .subtitle {
+            margin-top: 5px;
+            font-size: 14px;
+            font-weight: normal;
+            color: var(--color-lavender-800);
+        }
+
+        .container {
+            padding: 30px 20px;
+            width: 100%;
+            max-width: 800px;
+            box-sizing: border-box;
+        }
+
+        /* Сетка для приложений */
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        /* Карточка приложения */
+        .app-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            text-decoration: none;
+            color: var(--text-main);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-top: 5px solid var(--accent);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(74, 20, 140, 0.15); /* Тень в тон глубокого фиолетового */
+        }
+
+        .app-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .app-desc {
+            font-size: 14px;
+            color: var(--color-lavender-800);
+            line-height: 1.4;
+            flex-grow: 1;
+        }
+
+        .app-status {
+            margin-top: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--accent);
+            text-align: right;
+        }
+
+        /* Заглушка для будущих проектов */
+        .app-card.coming-soon {
+            border-top: 5px solid var(--color-lavender-300);
+            background-color: var(--color-lavender-50);
+            opacity: 0.9;
+            cursor: default;
+        }
+        .app-card.coming-soon:hover {
+            transform: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .app-card.coming-soon .app-status {
+            color: var(--color-lavender-600);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        Мои проектики 🚀
+        <div class="subtitle">Центр управления проектами</div>
+    </header>
+
+    <div class="container">
+        <div class="apps-grid">
+            
+            <a href="pikeplan.html" class="app-card">
+                <div class="app-title">🐟 PikePlan</div>
+                <div class="app-desc">
+                    Личный планировщик задач. Управляй делами на сегодня, отслеживай прогресс в календаре и сохраняй выполненное в архив.
+                </div>
+                <div class="app-status">Открыть ➔</div>
+            </a>
+
+            <a href="#" class="app-card coming-soon" onclick="event.preventDefault();">
+                <div class="app-title">✨ Новый проект</div>
+                <div class="app-desc">
+                    Здесь скоро появится что-то интересное. Место забронировано под новое приложение экосистемы.
+                </div>
+                <div class="app-status">В разработке...</div>
+            </a>
+
+        </div>
+    </div>
+
+</body>
+</html>

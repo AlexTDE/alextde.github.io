@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PikePlan</title>
+    <style>
+        /* Новая профессиональная палитра */
+        :root {
+            --color-lavender-50: #f8f7ff;
+            --color-lavender-100: #f0eeff;
+            --color-lavender-200: #e0dbff;
+            --color-lavender-300: #c1b5ff;
+            --color-lavender-400: #a38fff;
+            --color-lavender-500: #8469ff;
+            --color-lavender-600: #6b4eff;
+            --color-lavender-700: #5639e6;
+            --color-lavender-800: #462ebc;
+            --color-lavender-900: #3a279c;
+            --color-pink-soft: #ffebf5;
+            --color-purple-deep: #4a148c;
+
+            /* Привязка к элементам интерфейса */
+            --bg-color: var(--color-lavender-50);
+            --primary: var(--color-lavender-300);
+            --accent: var(--color-purple-deep);
+            --text-main: #000000;
+            --card-bg: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            padding-bottom: 80px;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: var(--text-main);
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* Навигация (вкладки) */
+        .tabs {
+            display: flex;
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--color-lavender-200);
+        }
+        .tab {
+            flex: 1;
+            padding: 12px 5px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            color: var(--text-main);
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        .tab.active {
+            border-bottom: 3px solid var(--accent);
+            color: var(--accent);
+        }
+        .tab:not(.active):hover {
+            background-color: var(--color-lavender-50);
+        }
+
+        /* Контент */
+        .content { display: none; padding: 20px; }
+        .content.active { display: block; }
+
+        h2 { 
+            font-size: 18px; 
+            margin-top: 0; 
+            border-bottom: 2px solid var(--color-lavender-200); 
+            padding-bottom: 8px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-end;
+        }
+        .date-display { font-size: 14px; font-weight: normal; color: var(--color-lavender-800); }
+
+        /* Задачи */
+        .task {
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .task-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-grow: 1;
+        }
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--accent);
+        }
+        .task-info { flex-grow: 1; }
+        .task-category { font-size: 12px; color: var(--color-lavender-700); font-weight: bold; margin-top: 2px; }
+        .task-delete {
+            cursor: pointer;
+            color: var(--color-lavender-400);
+            font-size: 20px;
+            padding: 0 5px;
+            font-weight: bold;
+            transition: color 0.2s;
+        }
+        .task-delete:hover {
+            color: #d9534f;
+        }
+
+        /* Кнопка добавления */
+        .fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: var(--accent);
+            color: var(--card-bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            box-shadow: 0 4px 10px rgba(74, 20, 140, 0.3); /* Тень в тон кнопки */
+            cursor: pointer;
+            border: none;
+            z-index: 1000;
+            transition: transform 0.2s;
+        }
+        .fab:hover { transform: scale(1.05); }
+
+        /* Модальное окно */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(58, 39, 156, 0.4); /* Полупрозрачный лавандовый фон */
+            z-index: 1001; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: var(--card-bg); padding: 20px; border-radius: 12px;
+            width: 80%; max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .modal-content input {
+            width: 100%; padding: 10px; margin: 10px 0; border: 1px solid var(--color-lavender-300);
+            border-radius: 5px; box-sizing: border-box; outline: none; color: var(--text-main);
+        }
+        .modal-content input:focus {
+            border-color: var(--accent);
+        }
+        .btn {
+            background: var(--accent); color: var(--card-bg); border: none; padding: 10px;
+            border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; font-size: 16px;
+        }
+        
+        /* Календарь */
+        .calendar-header {
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 15px; font-weight: bold; font-size: 16px;
+        }
+        .calendar-header button {
+            background: var(--card-bg); border: 1px solid var(--color-lavender-300); 
+            padding: 6px 12px; border-radius: 5px; cursor: pointer; color: var(--text-main);
+            font-weight: bold;
+        }
+        .calendar-header button:hover { background: var(--color-lavender-100); }
+        .btn-today-jump { background-color: var(--primary) !important; border-color: var(--primary) !important; }
+        
+        .calendar-grid {
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center;
+        }
+        .calendar-day {
+            background: var(--card-bg); padding: 10px 0; border-radius: 5px; cursor: pointer;
+            position: relative; border: 2px solid transparent;
+        }
+        .calendar-day:hover { background: var(--color-lavender-50); }
+        .calendar-day.is-today {
+            border: 2px solid var(--accent);
+            background-color: var(--color-pink-soft); /* Нежный розовый для сегодня */
+            font-weight: bold;
+        }
+        .calendar-day.has-task::after {
+            content: ''; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+            width: 6px; height: 6px; background-color: var(--accent); border-radius: 50%;
+        }
+        .calendar-day.active-day { background-color: var(--primary); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <header>PikePlan 🐟</header>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab(event, 'today')">Сегодня</div>
+        <div class="tab" onclick="switchTab(event, 'calendar')">Календарь</div>
+        <div class="tab" onclick="switchTab(event, 'archive')">Архив</div>
+    </div>
+
+    <div id="today" class="content active">
+        <h2>Задачи на сегодня <span id="today-date-display" class="date-display"></span></h2>
+        <div id="today-tasks"></div>
+
+        <h2 style="margin-top: 20px;">Без даты</h2>
+        <div id="dat
