@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Карточки</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+
+            font-family: Arial, sans-serif;
+
+            background: #f5f5f5;
+        }
+
+
+        button {
+            font: inherit;
+        }
+
+
+        .app {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+
+        /* =========================
+           ГЛАВНЫЙ ЭКРАН
+        ========================= */
+
+        .cards-screen {
+            width: 100%;
+            height: 100%;
+
+            padding: 40px;
+
+            display: flex;
+            flex-direction: column;
+
+            gap: 30px;
+        }
+
+
+        .cards-screen h1 {
+            text-align: center;
+
+            font-size: clamp(28px, 4vw, 48px);
+        }
+
+
+        .cards-grid {
+            flex: 1;
+
+            display: grid;
+
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+
+            gap: 24px;
+
+            min-height: 0;
+        }
+
+
+        /* =========================
+           КАРТОЧКА
+        ========================= */
+
+        .card {
+            border: none;
+            border-radius: 24px;
+
+            overflow: hidden;
+
+            position: relative;
+
+            cursor: pointer;
+
+            background: #ffffff;
+
+            min-height: 0;
+
+            transition:
+                transform 0.25s ease,
+                box-shadow 0.25s ease;
+        }
+
+
+        .card:hover {
+            transform: translateY(-5px);
+
+            box-shadow:
+                0 15px 30px
+                rgba(0, 0, 0, 0.15);
+        }
+
+
+        .card:active {
+            transform: scale(0.98);
+        }
+
+
+        .card img {
+            width: 100%;
+            height: 100%;
+
+            display: block;
+
+            object-fit: cover;
+        }
+
+
+        /* Затемнение снизу */
+
+        .card::after {
+            content: "";
+
+            position: absolute;
+
+            left: 0;
+            right: 0;
+            bottom: 0;
+
+            height: 50%;
+
+            background:
+                linear-gradient(
+                    transparent,
+                    rgba(0, 0, 0, 0.7)
+                );
+        }
+
+
+        /* Название */
+
+        .card span {
+            position: absolute;
+
+            z-index: 2;
+
+            left: 24px;
+            bottom: 20px;
+
+            color: white;
+
+            font-size: clamp(20px, 2vw, 32px);
+            font-weight: bold;
+
+            text-align: left;
+        }
+
+
+        /* =========================
+           ДЕТАЛЬНАЯ КАРТОЧКА
+        ========================= */
+
+        .detail-screen {
+            display: none;
+
+            width: 100%;
+            height: 100%;
+
+            padding: 40px;
+
+            position: relative;
+        }
+
+
+        .detail-screen.active {
+            display: block;
+        }
+
+
+        .detail-content {
+            width: 100%;
+            height: 100%;
+
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 40px;
+
+            align-items: center;
+        }
+
+
+        .detail-image-wrapper {
+            width: 100%;
+            height: 100%;
+
+            max-height: 80vh;
+
+            border-radius: 24px;
+
+            overflow: hidden;
+        }
+
+
+        .detail-image-wrapper img {
+            width: 100%;
+            height: 100%;
+
+            object-fit: cover;
+        }
+
+
+        /* Текстовая часть */
+
+        .detail-info {
+            height: 100%;
+
+            display: flex;
+            flex-direction: column;
+
+            justify-content: center;
+
+            gap: 24px;
+
+            min-height: 0;
+        }
+
+
+        .detail-info h2 {
+            font-size: clamp(32px, 4vw, 64px);
+        }
+
+
+        /*
+        Если текста слишком много,
+        прокручивается только текст
+        */
+
+        .detail-text {
+            font-size: clamp(16px, 1.5vw, 22px);
+
+            line-height: 1.6;
+
+            overflow-y: auto;
+
+            padding-right: 10px;
+
+            max-height: 60vh;
+        }
+
+
+        /* Кнопка назад */
+
+        .back-button {
+            position: absolute;
+
+            top: 20px;
+            left: 20px;
+
+            z-index: 10;
+
+            width: 50px;
+            height: 50px;
+
+            border: none;
+            border-radius: 50%;
+
+            background: white;
+
+            box-shadow:
+                0 5px 15px
+                rgba(0, 0, 0, 0.15);
+
+            font-size: 28px;
+
+            cursor: pointer;
+
+            transition: transform 0.2s ease;
+        }
+
+
+        .back-button:hover {
+            transform: scale(1.1);
+        }
+
+
+        /* =========================
+           ТЕЛЕФОН
+        ========================= */
+
+        @media (max-width: 700px) {
+
+            .cards-screen {
+                padding: 20px;
+                gap: 20px;
+            }
+
+
+            .cards-grid {
+                gap: 14px;
+            }
+
+
+            .card {
+                border-radius: 18px;
+            }
+
+
+            .card span {
+                left: 14px;
+                bottom: 14px;
+
+                font-size: 18px;
+            }
+
+
+            /* Детальная карточка */
+
+            .detail-screen {
+                padding: 70px 20px 20px;
+            }
+
+
+            .detail-content {
+                grid-template-columns: 1fr;
+
+                grid-template-rows: 40% 1fr;
+
+                gap: 20px;
+            }
+
+
+            .detail-image-wrapper {
+                height: 100%;
+                max-height: none;
+            }
+
+
+            .detail-info {
+                justify-content: flex-start;
+
+                gap: 12px;
+            }
+
+
+            .detail-info h2 {
+                font-size: 30px;
+            }
+
+
+            .detail-text {
+                max-height: none;
+
+                flex: 1;
+
+                font-size: 16px;
+            }
+
+
+            .back-button {
+                top: 12px;
+                left: 12px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+    <main class="app">
+        <!-- =========================
+             ГЛАВНЫЙ ЭКРАН
+        ========================== -->
+        <section
+            class="cards-screen"
+            id="cardsScreen"
+        >
+            <h1>
+                Выберите карточку
+            </h1>
+            <div class="cards-grid">
+
+                <!-- Карточка 1 -->
+                <button
+                    class="card"
+                    data-card="0"
+                >
+                    <img
+                        src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/32/1c/88/b6/3-01-31.jpg?w=1200&h=1200&s=1"
+                        alt="Ботанический сад"
+                    >
+                    <span>
+                        Ботанический сад
+                    </span>
+                </button>
+
+                <!-- Карточка 2 -->
+                <button
+                    class="card"
+                    data-card="1"
+                >
+                    <img
+                        src="https://i.pinimg.com/originals/fd/e1/e6/fde1e6bf34661fbf77ae62cbf8808344.webp?nii=t"
+                        alt="Уютное кафе"
+                    >
+                    <span>
+                        Уютное кафе
+                    </span>
+                </button>
+
+                <!-- Карточка 3 -->
+                <button
+                    class="card"
+                    data-card="2"
+                >
+                    <img
+                        src="https://resize.tripster.ru/3_6-ouUv-dQTLVZ-OGMJDAlmg80=/fit-in/1080x810/filters:no_upscale()/https://cdn.tripster.ru/photos/73027c08-91f7-4b07-9d91-865a3d8030d0.jpg"
+                        alt="Аннекирхе"
+                    >
+                    <span>
+                        Аннекирхе
+                    </span>
+                </button>
+
+                <!-- Карточка 4 -->
+                <button
+                    class="card"
+                    data-card="3"
+                >
+                    <img
+                        src="https://ucare.timepad.ru/b313b609-01ac-47d1-a96f-47ebb81a0563/-/crop/1920x1079/0,0/-/resize/1920x1080/poster_event_3745747.jpg"
+                        alt="Кабаре «Блеск-бурлеск»"
+                    >
+                    <span>
+                        Кабаре «Блеск-бурлеск»
+                    </span>
+                </button>
+            </div>
+            <p>П.С. ещё есть идея с каким-нибудь МК (керамика, раскраска матрешки и тд)</p>
+        </section>
+
+        <!-- =========================
+             ДЕТАЛЬНАЯ КАРТОЧКА
+        ========================== -->
+        <section
+            class="detail-screen"
+            id="detailScreen"
+        >
+            <button
+                class="back-button"
+                id="backButton"
+                aria-label="Назад"
+            >
+                ←
+            </button>
+            <div class="detail-content">
+                <div class="detail-image-wrapper">
+                    <img
+                        id="detailImage"
+                        src=""
+                        alt=""
+                    >
+                </div>
+                <div class="detail-info">
+                    <h2 id="detailTitle">
+                    </h2>
+                    <div
+                        class="detail-text"
+                        id="detailText"
+                    >
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+    </main>
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================== -->
+    <script>
+        const cardsScreen =
+            document.getElementById("cardsScreen");
+        const detailScreen =
+            document.getElementById("detailScreen");
+        const detailImage =
+            document.getElementById("detailImage");
+        const detailTitle =
+            document.getElementById("detailTitle");
+        const detailText =
+            document.getElementById("detailText");
+        const backButton =
+            document.getElementById("backButton");
+
+        /* =========================
+           ДАННЫЕ КАРТОЧЕК
+        ========================== */
+        const cardsData = [
+
+            {
+                title: "Ботанический сад",
+
+                image:
+                    "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/32/1c/88/b6/3-01-31.jpg?w=1200&h=1200&s=1  ",
+
+                text: `
+                    <p>Тропический оранжерейный маршрут с посещением Водной оранжереи</p>
+                    <br>
+                    <p>погулять посмотреть на траву, пока трава на улице мокрая</p>
+                    <br>
+                    <p>м.Петроградская, доступные даты 22-23.08</p>
+                `
+            },
+
+
+            {
+                title: "Уютное кафе",
+                image:
+                    "https://i.pinimg.com/originals/fd/e1/e6/fde1e6bf34661fbf77ae62cbf8808344.webp?nii=t",
+
+                text: `
+                    <p>Посидеть вкусно покушать</p>
+                    <br>
+                    <p>Предлагаю вафли на Ваське, но могу что-нибудь другое посмотреть</p>
+                    <br>
+                    <p>м.Василеостровская, доступные даты 22-23.08</p>
+                `
+            },
+
+
+            {
+                title: "Аннекирхе",
+                image:
+                    "https://resize.tripster.ru/3_6-ouUv-dQTLVZ-OGMJDAlmg80=/fit-in/1080x810/filters:no_upscale()/https://cdn.tripster.ru/photos/73027c08-91f7-4b07-9d91-865a3d8030d0.jpg",
+                text: `
+                    <p>История всего: от Сотворения до Апокалипсиса. Выставка инсталяция</p>
+                    <br>
+                    <p>Как будто небольшая выставка, но прикольно выглядит, после можем сходить покушать</p>
+                    <br>
+                    <p>
+                    https://afisha.yandex.ru/saint-petersburg/art/istoriia-vsego-ot-sotvoreniia-do-apokalipsisa-2026-07-31?lang=&source=selection-events&rubricCode=main&refererSurface=filter
+                    </p>
+                    <br>
+                    <p>м.Чернышевская, доступные даты 22-23.08</p>
+                `
+            },
+
+
+            {
+                title: "Кабаре «Блеск-бурлеск»",
+
+                image:
+                    "https://ucare.timepad.ru/b313b609-01ac-47d1-a96f-47ebb81a0563/-/crop/1920x1079/0,0/-/resize/1920x1080/poster_event_3745747.jpg",
+
+                text: `
+                    <p>Вечерняя программа, в 19:00 начало</p>
+                    <br>
+                    <p>кабаре это прикольно, но ярко и громко, не знаю насколько в данный момент это плюс</p>
+                    <br>
+                    <p>м.Лиговский пр-кт, доступные даты 22.08</p>
+                `
+            }
+
+        ];
+
+        /* =========================
+           ОТКРЫТИЕ КАРТОЧКИ
+        ========================== */
+
+        const cards =
+            document.querySelectorAll(".card");
+
+
+        cards.forEach(card => {
+
+            card.addEventListener(
+                "click",
+                () => {
+
+                    const index =
+                        card.dataset.card;
+
+
+                    const selectedCard =
+                        cardsData[index];
+
+
+                    detailImage.src =
+                        selectedCard.image;
+
+
+                    detailImage.alt =
+                        selectedCard.title;
+
+
+                    detailTitle.textContent =
+                        selectedCard.title;
+
+
+                    detailText.innerHTML =
+                        selectedCard.text;
+
+
+                    cardsScreen.style.display =
+                        "none";
+
+
+                    detailScreen.classList.add(
+                        "active"
+                    );
+
+                }
+            );
+
+        });
+
+
+
+        /* =========================
+           ВОЗВРАТ НАЗАД
+        ========================== */
+
+        backButton.addEventListener(
+            "click",
+            () => {
+
+                detailScreen.classList.remove(
+                    "active"
+                );
+
+
+                cardsScreen.style.display =
+                    "flex";
+
+            }
+        );
+
+    </script>
+
+
+</body>
+
+</html>
